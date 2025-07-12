@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Annotated
+from security import safe_command
 
 try:
     import typer
@@ -42,8 +43,7 @@ def _get_npx_command():
         # Try both npx.cmd and npx.exe on Windows
         for cmd in ["npx.cmd", "npx.exe", "npx"]:
             try:
-                subprocess.run(
-                    [cmd, "--version"], check=True, capture_output=True, shell=True
+                safe_command.run(subprocess.run, [cmd, "--version"], check=True, capture_output=True, shell=True
                 )
                 return cmd
             except subprocess.CalledProcessError:
@@ -250,8 +250,7 @@ def dev(
 
         # Run the MCP Inspector command with shell=True on Windows
         shell = sys.platform == "win32"
-        process = subprocess.run(
-            [npx_cmd, "@modelcontextprotocol/inspector"] + uv_cmd,
+        process = safe_command.run(subprocess.run, [npx_cmd, "@modelcontextprotocol/inspector"] + uv_cmd,
             check=True,
             shell=shell,
             env=dict(os.environ.items()),  # Convert to list of tuples for env update
